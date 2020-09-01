@@ -1,0 +1,296 @@
+name: sol
+
+on:
+  push:
+    branches: ci
+
+jobs:
+  java:
+    name: Build and Upload Java
+    runs-on: ubuntu-latest
+    container: maven:latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build with Maven
+      run: |
+        mvn -B -fae -e -ntp clean package
+      working-directory: java/sol
+    - name: Upload auth-portal Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: java
+        path: java/sol/auth/auth-portal/target/auth-portal.jar
+    - name: Upload auth-schedule Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: java
+        path: java/sol/auth/auth-schedule/target/auth-schedule.jar
+
+  javascript:
+    name: Build and Upload Javascript
+    runs-on: ubuntu-latest
+    container: node:lts
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build with Npm
+      run: |
+        npm install
+        npm run-script build
+      working-directory: javascript/sol
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: javascript
+        path: javascript/sol/dist/
+
+  docker-openjdk:
+    name: Dist Openjdk to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Move Artifact
+      run: |
+        mv docker/sol/wait-for docker/sol/openjdk/wait-for
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DockerHubUser }}
+        password: ${{ secrets.DockerHubToken }}
+    - name: Build and Push sol:openjdk
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: chenzhe0722/sol:openjdk
+        context: docker/sol/openjdk
+        file: docker/sol/openjdk/Dockerfile
+        platforms: linux/amd64,linux/arm64
+
+  docker-auth-portal:
+    name: Dist Auth-Portal to DockerHub
+    runs-on: ubuntu-latest
+    needs: [java, docker-openjdk]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        path: artifact
+    - name: Move Artifact
+      run: |
+        mv artifact/java/auth-portal.jar docker/sol/springboot-expose/app.jar
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DockerHubUser }}
+        password: ${{ secrets.DockerHubToken }}
+    - name: Build and Push sol:auth-portal
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: chenzhe0722/sol:auth-portal
+        context: docker/sol/springboot-expose
+        file: docker/sol/springboot-expose/Dockerfile
+        platforms: linux/amd64,linux/arm64
+
+  docker-auth-schedule:
+    name: Dist Auth-Schedule to DockerHub
+    runs-on: ubuntu-latest
+    needs: [java, docker-openjdk]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        path: artifact
+    - name: Move Artifact
+      run: |
+        mv artifact/java/auth-schedule.jar docker/sol/springboot/app.jar
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DockerHubUser }}
+        password: ${{ secrets.DockerHubToken }}
+    - name: Build and Push sol:auth-schedule
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: chenzhe0722/sol:auth-schedule
+        context: docker/sol/springboot
+        file: docker/sol/springboot/Dockerfile
+        platforms: linux/amd64,linux/arm64
+
+  docker-portal:
+    name: Dist Portal to DockerHub
+    runs-on: ubuntu-latest
+    needs: [javascript]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        path: artifact
+    - name: Move Artifact
+      run: |
+        mv artifact/javascript docker/sol/portal/html
+        mv docker/sol/wait-for docker/sol/portal/wait-for
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DockerHubUser }}
+        password: ${{ secrets.DockerHubToken }}
+    - name: Build and Push sol:portal
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: chenzhe0722/sol:portal
+        context: docker/sol/portal
+        file: docker/sol/portal/Dockerfile
+        platforms: linux/amd64,linux/arm64
+
+  docker-database-master:
+    name: Dist Database-Master to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Move Artifact
+      run: |
+        mv mysql/sol/master docker/sol/mysql/sql
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DockerHubUser }}
+        password: ${{ secrets.DockerHubToken }}
+    - name: Build and Push sol:database-master
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: chenzhe0722/sol:database-master
+        context: docker/sol/mysql
+        file: docker/sol/mysql/Dockerfile
+        platforms: linux/amd64,linux/arm64
+
+  docker-database-slave:
+    name: Dist Database-Slave to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Move Artifact
+      run: |
+        mv mysql/sol/slave docker/sol/mysql/sql
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DockerHubUser }}
+        password: ${{ secrets.DockerHubToken }}
+    - name: Build and Push sol:database-slave
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: chenzhe0722/sol:database-slave
+        context: docker/sol/mysql
+        file: docker/sol/mysql/Dockerfile
+        platforms: linux/amd64,linux/arm64
+
+  docker-database-router:
+    name: Dist Database-Router to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DockerHubUser }}
+        password: ${{ secrets.DockerHubToken }}
+    - name: Build and Push sol:database-router
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: chenzhe0722/sol:database-router
+        context: docker/sol/database-router
+        file: docker/sol/database-router/Dockerfile
+        platforms: linux/amd64,linux/arm64
+
+  docker-cache-cluster:
+    name: Dist Cache-Cluster to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DockerHubUser }}
+        password: ${{ secrets.DockerHubToken }}
+    - name: Build and Push sol:cache-cluster
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: chenzhe0722/sol:cache-cluster
+        context: docker/sol/cache-cluster
+        file: docker/sol/cache-cluster/Dockerfile
+        platforms: linux/amd64,linux/arm64
+
+  docker-wait:
+    name: Dist Wait to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DockerHubUser }}
+        password: ${{ secrets.DockerHubToken }}
+    - name: Build and Push sol:wait
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: chenzhe0722/sol:wait
+        context: docker/sol/wait
+        file: docker/sol/wait/Dockerfile
+        platforms: linux/amd64,linux/arm64

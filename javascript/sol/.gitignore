@@ -1,0 +1,12 @@
+# Npm
+node_modules/
+
+# Webpack
+dist/
+
+# WebStorm
+*.iml
+.idea/
+
+# Visual Studio Code
+.settings

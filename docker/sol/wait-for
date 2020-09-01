@@ -1,0 +1,39 @@
+#!/bin/sh
+
+wait_for() {
+  for i in $(seq ${TIMEOUT}) ; do
+    nc -z "${HOST}" "${PORT}" > /dev/null 2>&1
+    if [ ${?} -eq 0 ] ; then
+      return 0
+    fi
+    sleep 1
+  done
+  echo "Waiting for ${HOST}:${PORT} timed out" >&2
+  exit 1
+}
+
+while [ ${#} -gt 0 ]
+do
+  case "${1}" in
+    *:*)
+    HOST="${1%:*}"
+    PORT="${1#*:}"
+    wait_for
+    shift 1
+    ;;
+    -t)
+    TIMEOUT=${2}
+    shift 2
+    ;;
+    --)
+    shift 1
+    break
+    ;;
+    *)
+    echo "Unknown argument: ${1}" >&2
+    exit 1
+    ;;
+  esac
+done
+
+exec "${@}"

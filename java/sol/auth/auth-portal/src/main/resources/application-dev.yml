@@ -1,0 +1,16 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: "jdbc:mysql://localhost:3306/auth?characterEncoding=UTF-8"
+    username: root
+  jpa:
+    open-in-view: false
+    show-sql: true
+  session:
+    store-type: redis
+    redis:
+      namespace: "auth"
+  redis:
+    url: "redis://localhost:6379"

@@ -1,0 +1,4 @@
+CHANGE MASTER TO
+  MASTER_HOST='database-master',
+  MASTER_USER='repl',
+  MASTER_LOG_POS=1;
