@@ -1,29 +1,29 @@
 import * as React from 'react';
-import {useContext, useEffect} from 'react';
-import {loginState} from 'sol/api/auth/security';
-import {LoginContext} from 'sol/component/login';
+import {useEffect, useState} from 'react';
+import {useLogin} from 'sol/component/login';
 import {useServerError} from 'sol/component/message';
-import {IndexApp} from 'sol/page/IndexApp';
-import {LoginApp} from 'sol/page/LoginApp';
 
 export function App(): JSX.Element {
-  const [login, setLogin] = useContext(LoginContext);
+  const login = useLogin();
+  const [app, setApp] = useState<JSX.Element>(<></>);
   const handler = useServerError();
 
   useEffect(
     () => {
-      loginState()
-        .then(state => setLogin(state.exists))
-        .catch(handler);
+      switch (login) {
+        case true:
+          import('sol/page/IndexApp')
+            .then(mdl => setApp(<mdl.IndexApp />))
+            .catch(handler);
+          break;
+        case false:
+          import('sol/page/LoginApp')
+            .then(mdl => setApp(<mdl.LoginApp />))
+            .catch(handler);
+          break;
+      }
     },
-    [setLogin, handler],
+    [login, handler],
   );
-
-  if (login === true) {
-    return (<IndexApp />);
-  } else if (login === false) {
-    return (<LoginApp />);
-  } else {
-    return (<></>);
-  }
+  return app;
 }

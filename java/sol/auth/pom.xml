@@ -14,7 +14,6 @@
   <modules>
     <module>auth-repo</module>
     <module>auth-portal</module>
-    <module>auth-schedule</module>
   </modules>
 
   <dependencyManagement>

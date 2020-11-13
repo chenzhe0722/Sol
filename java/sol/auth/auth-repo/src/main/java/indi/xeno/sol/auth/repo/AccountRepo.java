@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 
 @Repository
@@ -24,15 +23,6 @@ public interface AccountRepo extends NameActiveRepo<Account> {
   int setAdminById(@Param("id") BigInteger id, @Param("admin") Boolean admin);
 
   @Modifying
-  @Query("UPDATE Account e SET e.lastLoggedOut = :lastLoggedOut WHERE e.id = :id")
-  int setLastLoggedOutById(
-      @Param("id") BigInteger id, @Param("lastLoggedOut") OffsetDateTime lastLoggedOut);
-
-  @Modifying
-  @Query(
-      "UPDATE Account e SET e.active = :active WHERE e.lastLoggedOut < :lastLoggedOut AND e.active <> :active")
-  int setActiveByLastLoggedOutLessThan(
-      @Param("lastLoggedOut") OffsetDateTime lastLoggedOut, @Param("active") Boolean active);
-
-  int removeByLastLoggedOutLessThan(OffsetDateTime lastLoggedOut);
+  @Query("UPDATE Account e SET e.lastLogged = CURRENT_TIMESTAMP WHERE e.id = :id")
+  int setLastLoggedAsNowById(@Param("id") BigInteger id);
 }

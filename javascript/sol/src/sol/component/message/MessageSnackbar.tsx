@@ -1,27 +1,28 @@
 import {Snackbar, SnackbarProps} from '@material-ui/core';
 import * as React from 'react';
 import {useContext, useEffect, useState} from 'react';
-import {Message, MessageQueueContext} from 'sol/component/message';
+import {Message, MessageContext} from 'sol/component/message';
 import {ExcludeKey} from 'sol/util';
 import {useSwitch} from 'sol/util/hook';
 
 export function MessageSnackbar(
   props: ExcludeKey<SnackbarProps, SnackbarPropsExclude>,
 ): JSX.Element {
+  const [len, , shift] = useContext(MessageContext);
+  const size = len();
   const [open, switchOpen] = useSwitch(false);
-  const [len, , pop] = useContext(MessageQueueContext);
   const [msg, setMsg] = useState<Message | undefined>(undefined);
 
   useEffect(
     () => {
-      if (len) {
+      if (size) {
         if (!open) {
-          setMsg(pop());
+          setMsg(shift());
         }
         switchOpen();
       }
     },
-    [open, switchOpen, len, pop],
+    [open, switchOpen, size, shift],
   );
 
   return (

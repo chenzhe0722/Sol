@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  namespace: sol
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  - name: mysql-x
+    port: 33060
+  selector:
+    app: database
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-repl
+  namespace: sol
+spec:
+  clusterIP: None
+  ports:
+  - name: mysql
+    port: 3306
+  - name: repl
+    port: 33061
+  selector:
+    app: database
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-conf
+  namespace: sol
+data:
+  my.cnf: |
+    [mysqld]
+    disabled_storage_engines="MyISAM,BLACKHOLE,FEDERATED,ARCHIVE,MEMORY"
+    gtid_mode=ON
+    enforce_gtid_consistency=ON
+    plugin_load_add="group_replication.so"
+    loose-group_replication_group_name="36386f48-eb5c-55cb-96a9-62e5aa19f604"
+    loose-group_replication_single_primary_mode=OFF
+    loose-group_replication_enforce_update_everywhere_checks=ON
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: database
+  namespace: sol
+spec:
+  serviceName: database-repl
+  replicas: 3
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+        backend: app
+    spec:
+      containers:
+      - name: database
+        image: chenzhe0722/sol:database
+        ports:
+        - containerPort: 3306
+        - containerPort: 33060
+        - containerPort: 33061
+        env:
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        - name: conf
+          mountPath: /etc/mysql
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - sh
+              - "-c"
+              - |
+                if [ "${HOSTNAME##*-}" == "0" ]; then
+                  sleep 15
+                  while ! mysqladmin -u repl version; do
+                    sleep 5
+                  done
+                  sed -i '/loose-group_replication_bootstrap_group=ON/d' /etc/mysql/my.cnf
+                fi
+      initContainers:
+      - name: init
+        image: busybox:latest
+        command:
+        - sh
+        - "-c"
+        - |
+          set -eux
+          cp /root/mysql/my.cnf /etc/mysql/my.cnf
+          echo "report_host=\"database-${HOSTNAME##*-}.database-repl.sol.svc.cluster.local\"" >> /etc/mysql/my.cnf
+          echo "server_id=$((${HOSTNAME##*-}+1))" >> /etc/mysql/my.cnf
+          echo "loose-group_replication_local_address=\"database-${HOSTNAME##*-}.database-repl.sol.svc.cluster.local:33061\"" >> /etc/mysql/my.cnf
+          echo "loose-group_replication_group_seeds=\"$(awk 'BEGIN {for (i=0;i<3;++i) printf "database-%d.database-repl.sol.svc.cluster.local:33061,", i}' | sed -e 's/,$//')\"" >> /etc/mysql/my.cnf
+          if [ "${HOSTNAME##*-}" == "0" ]; then
+            echo "loose-group_replication_bootstrap_group=ON" >> /etc/mysql/my.cnf
+          fi
+        volumeMounts:
+        - name: conf
+          mountPath: /etc/mysql
+        - name: conf-map
+          mountPath: /root/mysql
+      volumes:
+      - name: conf
+        emptyDir: {}
+      - name: conf-map
+        configMap:
+          name: data-conf
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi

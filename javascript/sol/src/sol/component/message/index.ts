@@ -1,36 +1,33 @@
 import {createContext, ReactNode, useContext} from 'react';
-import {doNothing} from 'sol/util';
+import {doNothing, ErrorHandler} from 'sol/util';
 
-export function useMessagePush(): (msg: MessageProps) => void {
-  const [, push] = useContext(MessageQueueContext);
+export function useMessagePush(): MessagePusher {
+  const [, push] = useContext(MessageContext);
   return push;
 }
 
-export function useServerError(): (err: Error) => void {
+export function useServerError(): ErrorHandler {
   const push = useMessagePush();
   return (err) => {
     console.log(err);
-    push({
-      content: 'Server error.',
-      type: 'ERROR',
-    });
+    push('Server error.', 'ERROR');
   };
 }
 
 export type MessageType = 'SUCCESS' | 'INFO' | 'WARNING' | 'ERROR' | 'DEFAULT';
 
-export type MessageProps = {
+export type Message = {
+  key: number,
   content: ReactNode,
   type: MessageType,
-}
+};
 
-export type Message = {
-  key: number
-} & MessageProps
+export type MessagePusher = (msg: ReactNode, type: MessageType) => void;
+export type MessageShifter = () => Message;
 
-export const MessageQueueContext =
-  createContext<[number, (msg: MessageProps) => void, () => Message]>([
-    0,
+export const MessageContext =
+  createContext<[() => number, MessagePusher, MessageShifter]>([
+    () => 0,
     doNothing,
     () => ({key: 0, content: undefined, type: 'DEFAULT'}),
   ]);

@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sol
+  labels:
+    project: sol
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend
+  namespace: sol
+spec:
+  podSelector:
+    matchLabels:
+      backend: app
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          backend: app
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend
+  namespace: sol
+spec:
+  podSelector:
+    matchLabels:
+      frontend: app
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          frontend: app

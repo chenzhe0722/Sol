@@ -1,5 +1,7 @@
-FROM chenzhe0722/sol:openjdk
+FROM openjdk:latest
 
 COPY ["app.jar", "app.jar"]
 
-CMD ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
+CMD ["java", "-jar", "app.jar"]
+
+EXPOSE 8080

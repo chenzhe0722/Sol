@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cache
+  namespace: sol
+spec:
+  ports:
+  - port: 6379
+  selector:
+    app: cache
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cache-conf
+  namespace: sol
+data:
+  redis.conf: |
+    protected-mode no
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cache
+  namespace: sol
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cache
+  template:
+    metadata:
+      labels:
+        app: cache
+        backend: app
+    spec:
+      containers:
+      - name: cache
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+        command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+        volumeMounts:
+        - name: conf
+          mountPath: /usr/local/etc/redis
+      volumes:
+      - name: conf
+        configMap:
+          name: cache-conf

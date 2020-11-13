@@ -12,7 +12,6 @@ spring:
     redis:
       namespace: "auth"
   redis:
-    url: "redis://cache:6379"
-logging:
-  level:
-    root: error
+    cluster:
+      nodes:
+      - "cache:6379"

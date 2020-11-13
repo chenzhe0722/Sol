@@ -1,5 +1,5 @@
 FROM nginx:alpine
 
-COPY ["html/", "/usr/share/nginx/html/"]
-COPY ["nginx.conf", "/etc/nginx/nginx.conf"]
-COPY ["wait-for", "/usr/local/bin/wait-for"]
+COPY ["static/", "/usr/share/nginx/sol/"]
+COPY ["portal.conf", "/etc/nginx/conf.d/portal.conf"]
+COPY ["portal.sh", "/docker-entrypoint.d/portal.sh"]

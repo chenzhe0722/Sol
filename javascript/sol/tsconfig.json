@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
+    "module": "ESNext",
+    "target": "ESNext",
     "jsx": "react",
     "baseUrl": "src",
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "removeComments": true

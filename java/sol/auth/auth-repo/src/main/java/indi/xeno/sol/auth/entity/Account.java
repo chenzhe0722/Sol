@@ -27,7 +27,7 @@ public class Account extends BaseNameActive {
       insertable = false,
       updatable = false,
       columnDefinition = "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP")
-  private OffsetDateTime lastLoggedOut;
+  private OffsetDateTime lastLogged;
 
   public String getPassword() {
     return password;
@@ -53,11 +53,11 @@ public class Account extends BaseNameActive {
     this.admin = admin;
   }
 
-  public OffsetDateTime getLastLoggedOut() {
-    return lastLoggedOut;
+  public OffsetDateTime getLastLogged() {
+    return lastLogged;
   }
 
-  public void setLastLoggedOut(OffsetDateTime lastLoggedOut) {
-    this.lastLoggedOut = lastLoggedOut;
+  public void setLastLogged(OffsetDateTime lastLoggedOut) {
+    this.lastLogged = lastLoggedOut;
   }
 }

@@ -1,13 +1,15 @@
 import {Button, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField} from '@material-ui/core';
 import {makeStyles} from '@material-ui/core/styles';
 import * as React from 'react';
-import {useCallback, useContext, useState} from 'react';
-import {login, loginState} from 'sol/api/auth/security';
+import {ReactNode, useEffect, useState} from 'react';
+import {login} from 'sol/api/auth/security';
 import {check, register} from 'sol/api/auth/sign-up';
-import {LoginContext} from 'sol/component/login';
-import {useMessagePush, useServerError} from 'sol/component/message';
+import {useLocale} from 'sol/component/locale';
+import {useHandleLogin} from 'sol/component/login';
+import {MessagePusher, useMessagePush, useServerError} from 'sol/component/message';
 import {useOutlinedColor} from 'sol/component/theme';
-import {EMPTY} from 'sol/util';
+import {LOGIN_TEXT} from 'sol/locale/component/login';
+import {EMPTY, ErrorHandler} from 'sol/util';
 import {useSwitch} from 'sol/util/hook';
 
 export function LoginForm(): JSX.Element {
@@ -16,23 +18,31 @@ export function LoginForm(): JSX.Element {
   const [cfm, setCfm] = useState(EMPTY);
 
   const [dialogOpen, switchDialogOpen] = useSwitch(false);
+  const push = useMessagePush();
+  const handler = useServerError();
 
-  const signUp = useSignUp(switchDialogOpen);
-  const handleSignUp = useCallback(
-    () => signUp(name, pwd),
-    [name, pwd, signUp],
-  );
+  const handleSignUp = signUp(switchDialogOpen, push, handler);
+  const handleConfirm = confirm(switchDialogOpen, push, handler);
+  const handleSignIn = signIn(useHandleLogin(), push, handler);
 
-  const confirm = useConfirm(switchDialogOpen);
-  const handleConfirm = useCallback(
-    () => confirm(name, pwd, cfm),
-    [name, pwd, cfm, confirm],
-  );
-
-  const signIn = useSignIn();
-  const handleSignIn = useCallback(
-    () => signIn(name, pwd),
-    [name, pwd, signIn],
+  const locale = useLocale();
+  const [text, setText] = useState(LOGIN_TEXT);
+  useEffect(
+    () => {
+      switch (locale) {
+        case 'en':
+          import('sol/locale/component/login/en')
+            .then(mdl => setText(mdl.LOGIN_TEXT))
+            .catch(handler);
+          break;
+        case 'cmn-Hans':
+          import('sol/locale/component/login/cmn-Hans')
+            .then(mdl => setText(mdl.LOGIN_TEXT))
+            .catch(handler);
+          break;
+      }
+    },
+    [locale, handler],
   );
 
   const styles = useStyles();
@@ -57,18 +67,20 @@ export function LoginForm(): JSX.Element {
             <Button
               variant="outlined" fullWidth
               color={useOutlinedColor()} disableElevation
-              onClick={handleSignUp}
+              onClick={
+                () => handleSignUp(name, pwd, text.invalid, text.occupied(name))
+              }
             >
-              Sign Up
+              {text.signUp}
             </Button>
           </Grid>
           <Grid item xs={6}>
             <Button
               variant="contained" fullWidth
               color="primary" disableElevation
-              onClick={handleSignIn}
+              onClick={() => handleSignIn(name, pwd, text.invalid)}
             >
-              Sign In
+              {text.signIn}
             </Button>
           </Grid>
         </Grid>
@@ -79,14 +91,7 @@ export function LoginForm(): JSX.Element {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            <p>
-              You are signing up for account <strong>{name}</strong>.
-              Account name <strong>CAN NOT</strong> be modified after signing
-              up, but alias can.
-            </p>
-            <p>
-              Please enter password again.
-            </p>
+            {text.dialog(name)}
           </DialogContentText>
           <TextField
             variant="outlined" fullWidth
@@ -107,7 +112,10 @@ export function LoginForm(): JSX.Element {
           <Button
             variant="contained"
             color="primary" disableElevation
-            onClick={handleConfirm}
+            onClick={
+              () =>
+                handleConfirm(name, pwd, cfm, text.success, text.inconsistent)
+            }
           >
             Confirm
           </Button>
@@ -120,92 +128,76 @@ export function LoginForm(): JSX.Element {
 const useStyles = makeStyles(
   ({spacing}) =>
     createStyles({
-      form: {
-        margin: spacing(0, 8),
-      },
-      button: {
-        marginTop: spacing(2),
-      },
+      form: {margin: spacing(0, 8)},
+      button: {marginTop: spacing(2)},
     }),
 );
 
-function useSignUp(
-  switchDialogOpen: () => void,
-): (name: string, pwd: string) => void {
-  const push = useMessagePush();
-  const handler = useServerError();
+type SignUpFunc =
+  (name: string, pwd: string, invalid: ReactNode, occupied: ReactNode) => void;
+type ConfirmFunc = (
+  name: string, pwd: string, cfm: string,
+  success: ReactNode, inconsistent: ReactNode,
+) => void;
+type SignInFunc = (name: string, pwd: string, invalid: ReactNode) => void;
 
-  return (name, pwd) => {
+function signUp(
+  switchDialogOpen: () => void,
+  push: MessagePusher,
+  handler: ErrorHandler,
+): SignUpFunc {
+  return (name, pwd, invalid, occupied) => {
     if (name != EMPTY && pwd != EMPTY) {
       check(
         {name: name},
       ).then(
         res => {
           if (res.exists) {
-            push({
-              content:
-                <>Name <strong>{name}</strong> has already been occupied.</>,
-              type: 'ERROR',
-            });
+            push(occupied, 'ERROR');
           } else {
             switchDialogOpen();
           }
         },
       ).catch(handler);
     } else {
-      push({
-        content: <>Name or password <strong>CAN NOT</strong> be empty.</>,
-        type: 'ERROR',
-      });
+      push(invalid, 'ERROR');
     }
   };
 }
 
-function useConfirm(
+function confirm(
   switchDialogOpen: () => void,
-): (name: string, pwd: string, cfm: string) => void {
-  const push = useMessagePush();
-  const handler = useServerError();
-
-  return (name, pwd, cfm) => {
+  push: MessagePusher,
+  handler: ErrorHandler,
+): ConfirmFunc {
+  return (name, pwd, cfm, success, inconsistent) => {
     if (pwd == cfm) {
       register(
         {name: name, password: pwd, alias: name},
       ).then(
         () => {
-          push({
-            content: <>Sign up successfully.</>,
-            type: 'SUCCESS',
-          });
+          push(success, 'SUCCESS');
           switchDialogOpen();
         },
       ).catch(handler);
     } else {
-      push({
-        content:
-          <>Password <strong>IS NOT</strong> consistent with the one before.</>,
-        type: 'ERROR',
-      });
+      push(inconsistent, 'ERROR');
     }
   };
 }
 
-function useSignIn(): (name: string, pwd: string) => void {
-  const push = useMessagePush();
-  const [, setLogin] = useContext(LoginContext);
-  const handler = useServerError();
-
-  return (name, pwd) => {
+function signIn(
+  handleLogin: () => void,
+  push: MessagePusher,
+  handler: ErrorHandler,
+): SignInFunc {
+  return (name, pwd, invalid) => {
     if (name != EMPTY && pwd != EMPTY) {
       login({name: name, password: pwd})
-        .then(loginState)
-        .then(res => setLogin(res.exists))
+        .then(handleLogin)
         .catch(handler);
     } else {
-      push({
-        content: <>Name or password <strong>CAN NOT</strong> be empty.</>,
-        type: 'ERROR',
-      });
+      push(invalid, 'ERROR');
     }
   };
 }

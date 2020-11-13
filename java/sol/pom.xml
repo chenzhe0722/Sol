@@ -18,7 +18,7 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <springframework-boot.version>2.3.5.RELEASE</springframework-boot.version>
+    <springframework-boot.version>2.4.4</springframework-boot.version>
     <disruptor.version>3.4.2</disruptor.version>
 
     <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
@@ -39,7 +39,6 @@
     <maven-help-plugin.version>3.2.0</maven-help-plugin.version>
 
     <flatten-maven-plugin.version>1.2.5</flatten-maven-plugin.version>
-    <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -162,11 +161,6 @@
               </goals>
             </execution>
           </executions>
-        </plugin>
-        <plugin>
-          <groupId>com.mysema.maven</groupId>
-          <artifactId>apt-maven-plugin</artifactId>
-          <version>${apt-maven-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
