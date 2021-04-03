@@ -1,7 +1,7 @@
 import {Snackbar, SnackbarProps} from '@material-ui/core';
 import * as React from 'react';
 import {useContext, useEffect, useState} from 'react';
-import {Message, MessageContext} from 'sol/component/message';
+import {EMPTY_MESSAGE, Message, MessageContext} from 'sol/component/message';
 import {ExcludeKey} from 'sol/util';
 import {useSwitch} from 'sol/util/hook';
 
@@ -11,7 +11,7 @@ export function MessageSnackbar(
   const [len, , shift] = useContext(MessageContext);
   const size = len();
   const [open, switchOpen] = useSwitch(false);
-  const [msg, setMsg] = useState<Message | undefined>(undefined);
+  const [msg, setMsg] = useState<Message>(EMPTY_MESSAGE);
 
   useEffect(
     () => {
@@ -27,8 +27,8 @@ export function MessageSnackbar(
 
   return (
     <Snackbar
-      message={msg !== undefined ? msg.content : undefined}
-      key={msg !== undefined ? msg.key : undefined}
+      message={msg.content}
+      key={msg.key}
       open={open}
       onClose={
         (event, reason) => {
@@ -38,7 +38,7 @@ export function MessageSnackbar(
           switchOpen();
         }
       }
-      onExited={() => setMsg(undefined)}
+      onExited={() => setMsg(EMPTY_MESSAGE)}
       autoHideDuration={6000}
       {...props}
     />

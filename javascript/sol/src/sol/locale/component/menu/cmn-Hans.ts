@@ -1,4 +1,4 @@
-import {TopMenuText} from "sol/locale/component/menu";
+import {TopMenuText} from 'sol/locale/component/menu';
 
 export const TOP_MENU_TEXT: TopMenuText = {
   account: {

@@ -1,81 +1,49 @@
 package indi.xeno.sol.auth.security;
 
+import indi.xeno.sol.auth.domain.Status;
 import indi.xeno.sol.auth.entity.Account;
+import indi.xeno.sol.common.security.BaseUserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
 import java.math.BigInteger;
 import java.util.List;
 
+import static indi.xeno.sol.auth.domain.Status.ADMIN;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-public class AccountDetails implements UserDetails {
+class AccountDetails extends BaseUserDetails {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  static final String ADMIN = "ADMIN";
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final List<GrantedAuthority> ADMIN_AUTH =
-      singletonList(new SimpleGrantedAuthority(ADMIN));
+      singletonList(new SimpleGrantedAuthority(ADMIN.name()));
+
+  private static List<GrantedAuthority> auth(Status status) {
+    if (ADMIN.equals(status)) {
+      return ADMIN_AUTH;
+    } else {
+      return emptyList();
+    }
+  }
 
   private final BigInteger id;
 
-  private final String username;
-
-  private final String password;
-
-  private final boolean enabled;
-
-  private final List<GrantedAuthority> authorities;
+  private final BigInteger version;
 
   AccountDetails(Account account) {
-    id = account.getId();
-    username = account.getName();
-    password = account.getPassword();
-    enabled = account.getActive();
-    authorities = account.getAdmin() ? ADMIN_AUTH : emptyList();
-  }
-
-  @Override
-  public List<GrantedAuthority> getAuthorities() {
-    return authorities;
+    super(account.name(), account.password(), auth(account.status()));
+    id = account.id();
+    version = account.version();
   }
 
   public BigInteger getId() {
     return id;
   }
 
-  @Override
-  public String getUsername() {
-    return username;
-  }
-
-  @Override
-  public String getPassword() {
-    return password;
-  }
-
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    return true;
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return enabled;
+  public BigInteger getVersion() {
+    return version;
   }
 }

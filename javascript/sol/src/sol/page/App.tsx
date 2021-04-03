@@ -1,29 +1,30 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
-import {useLogin} from 'sol/component/login';
-import {useServerError} from 'sol/component/message';
+import {useCurrent} from 'sol/component/session';
+import {EMPTY} from 'sol/util';
 
 export function App(): JSX.Element {
-  const login = useLogin();
+  const curr = useCurrent();
   const [app, setApp] = useState<JSX.Element>(<></>);
-  const handler = useServerError();
 
   useEffect(
     () => {
-      switch (login) {
-        case true:
-          import('sol/page/IndexApp')
-            .then(mdl => setApp(<mdl.IndexApp />))
-            .catch(handler);
-          break;
-        case false:
-          import('sol/page/LoginApp')
-            .then(mdl => setApp(<mdl.LoginApp />))
-            .catch(handler);
-          break;
+      if (curr !== undefined) {
+        switch (curr.name) {
+          case EMPTY:
+            import('sol/page/LoginApp')
+              .then(mdl => setApp(<mdl.LoginApp />))
+              .catch(console.log);
+            break;
+          default:
+            import('sol/page/IndexApp')
+              .then(mdl => setApp(<mdl.IndexApp />))
+              .catch(console.log);
+            break;
+        }
       }
     },
-    [login, handler],
+    [curr],
   );
   return app;
 }

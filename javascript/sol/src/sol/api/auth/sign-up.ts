@@ -7,7 +7,7 @@ export function check(params: NameView): Promise<ExistsView> {
 }
 
 export function register(
-  params: NameView & {password: string, alias: string},
+  params: NameView & {password: string},
 ): Promise<void> {
   return sendJsonOnly('POST', REGISTER, params);
 }

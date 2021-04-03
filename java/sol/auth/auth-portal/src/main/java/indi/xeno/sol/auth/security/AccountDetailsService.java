@@ -2,41 +2,29 @@ package indi.xeno.sol.auth.security;
 
 import indi.xeno.sol.auth.entity.Account;
 import indi.xeno.sol.auth.repo.AccountRepo;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import static indi.xeno.sol.auth.util.SecurityUtils.AVAIL_STATUS;
 
 @Service
-public class AccountDetailsService implements UserDetailsService {
+class AccountDetailsService implements ReactiveUserDetailsService {
 
-  private final AccountRepo accountRepo;
+  private final AccountRepo repo;
 
-  private static final Logger logger = getLogger(AccountDetailsService.class);
-
-  public AccountDetailsService(@Autowired AccountRepo accountRepo) {
-    this.accountRepo = accountRepo;
+  AccountDetailsService(@Autowired AccountRepo repo) {
+    this.repo = repo;
   }
 
   @Override
-  @Transactional
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return accountRepo
-        .findOneByName(username)
-        .map(this::updateLastLogged)
-        .orElseThrow(
-            () -> new UsernameNotFoundException("Account name: " + username + " not found!"));
+  public Mono<UserDetails> findByUsername(String name) {
+    return repo.findFirstByNameAndStatusIn(name, AVAIL_STATUS).flatMap(this::updateLastLogged);
   }
 
-  private UserDetails updateLastLogged(Account account) {
-    if (accountRepo.setLastLoggedAsNowById(account.getId()) == 0) {
-      logger.warn("Account id: {} update last logged time failed!", account.getId());
-    }
-    return new AccountDetails(account);
+  private Mono<UserDetails> updateLastLogged(Account account) {
+    return repo.setLastLoggedAsNowById(account.id()).map(ignore -> new AccountDetails(account));
   }
 }

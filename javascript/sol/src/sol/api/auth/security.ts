@@ -1,11 +1,7 @@
-import {ExistsView, NameView} from 'sol/api';
+import {NameView} from 'sol/api';
 import {API_AUTH} from 'sol/config/proxy';
 import {EMPTY_OBJECT} from 'sol/util';
-import {getAndRetrieveJson, sendJsonOnly} from 'sol/web/http';
-
-export function loginState(): Promise<ExistsView> {
-  return getAndRetrieveJson(LOGIN, EMPTY_OBJECT);
-}
+import {sendJsonOnly} from 'sol/web/http';
 
 export function login(params: NameView & {password: string}): Promise<void> {
   return sendJsonOnly('POST', LOGIN, params);

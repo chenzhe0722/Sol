@@ -3,3 +3,8 @@ spring:
     name: auth-portal
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  session:
+    store-type: redis
+    timeout: 2h
+    redis:
+      namespace: "sol"

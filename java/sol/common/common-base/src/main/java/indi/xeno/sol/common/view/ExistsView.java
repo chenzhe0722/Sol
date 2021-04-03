@@ -1,14 +1,7 @@
 package indi.xeno.sol.common.view;
 
-public class ExistsView {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-  private final Boolean exists;
+import static indi.xeno.sol.common.util.EntityUtils.EXISTS;
 
-  public ExistsView(Boolean exists) {
-    this.exists = exists;
-  }
-
-  public Boolean getExists() {
-    return exists;
-  }
-}
+public record ExistsView (@JsonProperty(EXISTS) Boolean exists) {}

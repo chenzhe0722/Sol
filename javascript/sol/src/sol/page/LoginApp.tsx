@@ -4,16 +4,15 @@ import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {ExternalImage} from 'sol/component/image/ExternalImage';
 import {useLocale} from 'sol/component/locale';
-import {LoginForm} from 'sol/component/login/LoginForm';
-import {useServerError} from 'sol/component/message';
+import {LocaleButton} from 'sol/component/locale/LocaleButton';
 import {MessageSnackbar} from 'sol/component/message/MessageSnackbar';
+import {LoginForm} from 'sol/component/session/LoginForm';
 import {useOutlinedColor} from 'sol/component/theme';
 import {ThemeTypeButton} from 'sol/component/theme/ThemeTypeButton';
 import {LOGIN_APP_TEXT} from 'sol/locale/page';
 
 export function LoginApp(): JSX.Element {
   const locale = useLocale();
-  const handler = useServerError();
 
   const [text, setText] = useState(LOGIN_APP_TEXT);
   useEffect(
@@ -22,16 +21,16 @@ export function LoginApp(): JSX.Element {
         case 'en':
           import('sol/locale/page/en')
             .then(mdl => setText(mdl.LOGIN_APP_TEXT))
-            .catch(handler);
+            .catch(console.log);
           break;
         case 'cmn-Hans':
           import('sol/locale/page/cmn-Hans')
             .then(mdl => setText(mdl.LOGIN_APP_TEXT))
-            .catch(handler);
+            .catch(console.log);
           break;
       }
     },
-    [locale, handler],
+    [locale],
   );
 
   const styles = useStyles();
@@ -45,7 +44,10 @@ export function LoginApp(): JSX.Element {
           item xs={12} sm={8} md={5} component={Paper}
           elevation={6} square className={styles.paper}
         >
-          <ThemeTypeButton color={useOutlinedColor()} />
+          <div className={styles.button}>
+            <LocaleButton color={useOutlinedColor()} />
+            <ThemeTypeButton color={useOutlinedColor()} />
+          </div>
           <Typography component="h1" variant="h5">{text.welcome}</Typography>
           <LoginForm />
         </Grid>
@@ -70,6 +72,9 @@ const useStyles = makeStyles(
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    button: {
+      display: 'flex',
     },
   }),
 );

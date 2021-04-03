@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: relation
+  namespace: sol
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  - name: mysql-x
+    port: 33060
+  selector:
+    app: relation
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: relation-init
+  namespace: sol
+data:
+  init.sql: |
+    DROP DATABASE IF EXISTS auth;
+    CREATE DATABASE auth DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_0900_ai_ci;
+    CREATE TABLE auth.account (
+      id          SERIAL,
+      name        VARCHAR(255)     NOT NULL,
+      password    VARCHAR(255)     NOT NULL,
+      status      TINYINT UNSIGNED NOT NULL,
+      last_logged DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      version     BIGINT UNSIGNED  NOT NULL DEFAULT 0,
+      PRIMARY KEY (id),
+      UNIQUE KEY (name)
+    ) ENGINE = InnoDB;
+    DROP USER IF EXISTS 'auth';
+    CREATE USER 'auth';
+    GRANT SELECT, INSERT, UPDATE, DELETE ON auth.* TO 'auth';

@@ -1,8 +1,6 @@
 package indi.xeno.sol.common.entity;
 
-import java.math.BigInteger;
+public interface IdEntity<T> {
 
-public interface IdEntity {
-
-  BigInteger getId();
+  T id();
 }

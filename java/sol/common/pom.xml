@@ -14,7 +14,6 @@
   <modules>
     <module>common-base</module>
     <module>common-web</module>
-    <module>common-repo</module>
   </modules>
 
   <dependencyManagement>

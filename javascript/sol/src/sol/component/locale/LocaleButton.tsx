@@ -1,34 +1,38 @@
 import {IconButton, IconButtonProps, Menu, MenuItem} from '@material-ui/core';
 import {Translate} from '@material-ui/icons';
 import * as React from 'react';
-import {useContext} from 'react';
+import {MouseEvent, useContext} from 'react';
 import {Locale, LocaleContext} from 'sol/component/locale';
 import {ExcludeKey} from 'sol/util';
-import {useSwitch} from 'sol/util/hook';
+import {useAnchor} from 'sol/util/hook';
 
 export function LocaleButton(
   props: ExcludeKey<IconButtonProps, 'onClick'>,
 ): JSX.Element {
-  const [open, switchOpen] = useSwitch(false);
-  const [, setLocale] = useContext(LocaleContext);
+  const [anchor, setAnchor, resetAnchor] =
+    useAnchor<MouseEvent<HTMLButtonElement>, HTMLButtonElement>();
+  const [locale, setLocale] = useContext(LocaleContext);
   return (
     <div>
-      <IconButton onClick={switchOpen} {...props}>
+      <IconButton onClick={setAnchor} {...props}>
         <Translate />
       </IconButton>
-      <Menu open={open}>
-        <LocaleItem
-          locale={'cmn-Hans'}
-          tag={'简体中文'}
-          switchOpen={switchOpen}
-          setLocale={setLocale}
-        />
-        <LocaleItem
-          locale={'en'}
-          tag={'English'}
-          switchOpen={switchOpen}
-          setLocale={setLocale}
-        />
+      <Menu
+        anchorEl={anchor} keepMounted
+        open={anchor !== undefined}
+        onClose={resetAnchor}
+      >
+        {
+          LOCALE_OPTIONS.map((item) =>
+            <LocaleItem
+              key={item.locale}
+              locale={item.locale}
+              tag={item.tag}
+              curr={locale}
+              switchOpen={resetAnchor}
+              setLocale={setLocale}
+            />)
+        }
       </Menu>
     </div>
   );
@@ -40,13 +44,27 @@ function LocaleItem(props: LocaleItemProps): JSX.Element {
     props.switchOpen();
   };
   return (
-    <MenuItem onClick={event}>{props.tag}</MenuItem>
+    <MenuItem
+      selected={props.locale === props.curr}
+      onClick={event}
+    >
+      {props.tag}
+    </MenuItem>
   );
 }
 
-type LocaleItemProps = {
+type LocaleItemInfo = {
   locale: Locale,
   tag: string,
+};
+
+type LocaleItemProps = LocaleItemInfo & {
+  curr: Locale,
   switchOpen: () => void,
   setLocale: (locale: Locale) => void,
 };
+
+const LOCALE_OPTIONS: LocaleItemInfo[] = [
+  {locale: 'cmn-Hans', tag: '简体中文'},
+  {locale: 'en', tag: 'English'},
+];

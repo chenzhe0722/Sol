@@ -18,8 +18,8 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <springframework-boot.version>2.4.4</springframework-boot.version>
-    <disruptor.version>3.4.2</disruptor.version>
+    <springframework-boot.version>2.5.0</springframework-boot.version>
+    <disruptor.version>3.4.4</disruptor.version>
 
     <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -38,7 +38,7 @@
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <maven-help-plugin.version>3.2.0</maven-help-plugin.version>
 
-    <flatten-maven-plugin.version>1.2.5</flatten-maven-plugin.version>
+    <flatten-maven-plugin.version>1.2.7</flatten-maven-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -66,7 +66,7 @@
           <configuration>
             <showDeprecation>true</showDeprecation>
             <showWarnings>true</showWarnings>
-            <release>14</release>
+            <release>16</release>
           </configuration>
         </plugin>
         <plugin>

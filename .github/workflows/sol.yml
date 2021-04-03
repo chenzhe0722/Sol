@@ -87,7 +87,7 @@ jobs:
         path: artifact
     - name: Move Artifact
       run: |
-        mv artifact docker/sol/portal/static
+        mv artifact docker/sol/nginx/static
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
@@ -102,32 +102,8 @@ jobs:
       with:
         push: true
         tags: chenzhe0722/sol:portal
-        context: docker/sol/portal
-        file: docker/sol/portal/Dockerfile
-        platforms: linux/amd64,linux/arm64
-
-  docker-database:
-    name: Dist Database to DockerHub
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-    - name: Login to DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DockerHubUser }}
-        password: ${{ secrets.DockerHubToken }}
-    - name: Build and Push sol:database
-      uses: docker/build-push-action@v2
-      with:
-        push: true
-        tags: chenzhe0722/sol:database
-        context: docker/sol/database
-        file: docker/sol/database/Dockerfile
+        context: docker/sol/nginx
+        file: docker/sol/nginx/Dockerfile
         platforms: linux/amd64,linux/arm64
 
   docker-wait:
@@ -136,9 +112,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Move Artifact
-      run: |
-        mv docker/sol/wait-for docker/sol/wait/wait-for
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx

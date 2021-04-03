@@ -1,17 +1,10 @@
 server:
   port: 8080
 spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: "jdbc:mysql://database:3306/auth?characterEncoding=UTF-8"
+  r2dbc:
+    url: "r2dbc:mysql://relation:3306/auth"
     username: auth
-  jpa:
-    open-in-view: false
-  session:
-    store-type: redis
-    redis:
-      namespace: "auth"
   redis:
     cluster:
       nodes:
-      - "cache:6379"
+        - "cache:6379"

@@ -2,8 +2,8 @@ import * as React from 'react';
 import {StrictMode} from 'react';
 import {render} from 'react-dom';
 import {LocaleProvider} from 'sol/component/locale/LocaleProvider';
-import {LoginProvider} from 'sol/component/login/LoginProvider';
 import {MessageProvider} from 'sol/component/message/MessageProvider';
+import {CurrentProvider} from 'sol/component/session/CurrentProvider';
 import {ThemeTypeProvider} from 'sol/component/theme/ThemeTypeProvider';
 import {App} from 'sol/page/App';
 
@@ -12,9 +12,9 @@ render(
     <ThemeTypeProvider>
       <LocaleProvider>
         <MessageProvider>
-          <LoginProvider>
+          <CurrentProvider>
             <App />
-          </LoginProvider>
+          </CurrentProvider>
         </MessageProvider>
       </LocaleProvider>
     </ThemeTypeProvider>

@@ -1,16 +1,7 @@
 package indi.xeno.sol.common.view;
 
-import java.math.BigInteger;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class IdView {
+import static indi.xeno.sol.common.util.EntityUtils.ID;
 
-  private final BigInteger id;
-
-  public IdView(BigInteger id) {
-    this.id = id;
-  }
-
-  public BigInteger getId() {
-    return id;
-  }
-}
+public record IdView<T> (@JsonProperty(ID) T id) {}

@@ -1,41 +1,50 @@
 package indi.xeno.sol.auth.security;
 
-import indi.xeno.sol.common.auth.AuthFailureHandler;
-import indi.xeno.sol.common.auth.AuthSuccessHandler;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.fasterxml.jackson.databind.JsonNode;
+import indi.xeno.sol.common.security.BaseAuthFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.io.UncheckedIOException;
 
-import static indi.xeno.sol.common.util.JsonUtilities.read;
+import static indi.xeno.sol.auth.util.AccountUtils.PASSWORD;
+import static indi.xeno.sol.common.util.EntityUtils.NAME;
+import static indi.xeno.sol.common.util.JsonUtils.readJson;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers;
 
-class AuthFilter extends UsernamePasswordAuthenticationFilter {
+@Component
+class AuthFilter extends BaseAuthFilter {
 
-  private static final String USERNAME_PARAM = "name";
-
-  AuthFilter(AuthenticationManager manager) {
-    super();
-    setAuthenticationManager(manager);
-    setAuthenticationSuccessHandler(new AuthSuccessHandler());
-    setAuthenticationFailureHandler(new AuthFailureHandler());
-    setUsernameParameter(USERNAME_PARAM);
+  AuthFilter(@Autowired AccountDetailsService accountDetailsService) {
+    super(new UserDetailsRepositoryReactiveAuthenticationManager(accountDetailsService));
+    setRequiresAuthenticationMatcher(pathMatchers(POST, "/login"));
+    setServerAuthenticationConverter(AuthFilter::convert);
   }
 
-  @Override
-  protected String obtainUsername(HttpServletRequest request) {
-    try {
-      return read(request.getReader()).path(getUsernameParameter()).asText();
-    } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
-    }
+  private static Mono<Authentication> convert(ServerWebExchange exchange) {
+    return exchange
+        .getRequest()
+        .getBody()
+        .map(buf -> buf.asInputStream(true))
+        .reduce(SequenceInputStream::new)
+        .map(AuthFilter::convert);
   }
 
-  @Override
-  protected String obtainPassword(HttpServletRequest request) {
+  private static Authentication convert(InputStream is) {
     try {
-      return read(request.getReader()).path(getPasswordParameter()).asText();
+      JsonNode root = readJson(is);
+      String username = root.get(NAME).asText();
+      String password = root.get(PASSWORD).asText();
+      return new UsernamePasswordAuthenticationToken(username, password);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }

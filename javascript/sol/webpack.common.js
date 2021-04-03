@@ -1,4 +1,3 @@
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
@@ -28,9 +27,9 @@ module.exports = {
   output: {
     filename: getOutputName,
     path: path.resolve(__dirname, 'dist'),
+    clean: true,
   },
   plugins: [
-    new CleanWebpackPlugin(),
     new ESLintPlugin({
       extensions: ['ts', 'tsx'],
     }),
