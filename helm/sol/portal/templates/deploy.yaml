@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: portal
+          image: chenzhe0722/sol:portal
+          ports:
+            - containerPort: 443
+          {{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.nginxConf }}
+          volumeMounts:
+            {{- if .Values.nginxConf }}
+            - name: {{ .Release.Name }}-conf
+              mountPath: /etc/nginx/conf.d
+            {{- end }}
+            {{- if .Values.ssl }}
+            - name: {{ .Release.Name }}-ssl
+              mountPath: /usr/share/nginx/cert
+            {{- end }}
+          {{- end }}
+      {{- if .Values.init }}
+      initContainers:
+        - name: {{ .Release.Name }}-wait
+          image: chenzhe0722/sol:wait
+          command:
+            - "wait-for"
+            - "-t"
+            - {{ .Values.init.timeout | quote }}
+            {{- range .Values.init.wait }}
+            - {{ . | quote }}
+            {{- end }}
+      {{- end }}
+      {{- if or .Values.nginxConf .Values.ssl }}
+      volumes:
+        {{- if .Values.nginxConf }}
+        - name: {{ .Release.Name }}-conf
+          configMap:
+            name: {{ .Release.Name }}-conf
+        {{- end }}
+        {{- if .Values.ssl }}
+        - name: {{ .Release.Name }}-ssl
+          secret:
+            secretName: {{ .Values.ssl.secretName }}
+        {{- end }}
+      {{- end }}

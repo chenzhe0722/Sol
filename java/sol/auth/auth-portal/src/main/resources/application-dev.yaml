@@ -2,7 +2,8 @@ server:
   port: 8080
 spring:
   r2dbc:
-    url: "r2dbc:mysql://localhost:3306/auth"
+    url: "r2dbc:mariadb://localhost:3306"
     username: root
+    name: auth
   redis:
     url: "redis://localhost:6379"

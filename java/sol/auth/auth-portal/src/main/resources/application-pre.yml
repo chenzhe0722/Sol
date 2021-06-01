@@ -1,8 +1,0 @@
-server:
-  port: 8080
-spring:
-  r2dbc:
-    url: "r2dbc:mysql://relation:3306/auth"
-    username: auth
-  redis:
-    url: "redis://cache:6379"
