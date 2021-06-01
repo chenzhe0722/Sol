@@ -2,8 +2,9 @@ server:
   port: 8080
 spring:
   r2dbc:
-    url: "r2dbc:mysql://relation:3306/auth"
+    url: "r2dbc:mariadb:gcomm://relation:3306"
     username: auth
+    name: auth
   redis:
     cluster:
       nodes:

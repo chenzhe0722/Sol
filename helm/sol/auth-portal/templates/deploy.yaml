@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        {{- if .Values.podLabels }}
+        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: chenzhe0722/sol:auth-portal
+          ports:
+            - containerPort: 8080
+          {{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: LOG4J_CONTEXT_SELECTOR
+              value: org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+      {{- if .Values.init }}
+      initContainers:
+        - name: {{ .Release.Name }}-wait
+          image: chenzhe0722/sol:wait
+          command:
+            - "wait-for"
+            - "-t"
+            - {{ .Values.init.timeout | quote }}
+            {{- range .Values.init.wait }}
+            - {{ . | quote }}
+            {{- end }}
+      {{- end }}

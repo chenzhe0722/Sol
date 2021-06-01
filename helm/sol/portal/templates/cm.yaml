@@ -1,0 +1,8 @@
+{{- if .Values.nginxConf }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-conf
+data:
+{{ toYaml .Values.nginxConf | indent 2 }}
+{{- end }}

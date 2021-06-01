@@ -36,8 +36,8 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>dev.miku</groupId>
-      <artifactId>r2dbc-mysql</artifactId>
+      <groupId>org.mariadb</groupId>
+      <artifactId>r2dbc-mariadb</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>

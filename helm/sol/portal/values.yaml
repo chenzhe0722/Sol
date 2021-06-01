@@ -1,0 +1,33 @@
+replicas: 3
+podLabels:
+  frontend: app
+resources:
+  requests:
+    cpu: 10m
+    memory: 8Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+ingress:
+  host: sol.xeno
+init:
+  timeout: 5
+  wait:
+    - auth-portal:8080
+nginxConf:
+  portal.conf: |
+    server {
+      listen  80;
+      server_name  sol.xeno;
+      gzip_static  on;
+      location ^~ / {
+        root  /usr/share/nginx/static;
+        index  index.html;
+      }
+      location ^~ /api/auth/ {
+        proxy_pass  http://auth-portal:8080/;
+      }
+      location ^~ /api/bing-image-meta/ {
+        proxy_pass  https://www.bing.com/HPImageArchive.aspx/;
+      }
+    }

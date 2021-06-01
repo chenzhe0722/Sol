@@ -1,0 +1,10 @@
+#!/bin/sh
+
+ROOT=$(dirname "${0}")
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+kubectl apply -f "${ROOT}/init.yaml"
+helm install -n sol -f "${ROOT}/relation.yaml" relation bitnami/mariadb-galera
+helm install -n sol -f "${ROOT}/cache.yaml" cache bitnami/redis-cluster
+helm install -n sol auth-portal "${ROOT}/auth-portal"
+helm install -n sol portal "${ROOT}/portal"
