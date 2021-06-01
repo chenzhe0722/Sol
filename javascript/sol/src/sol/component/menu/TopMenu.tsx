@@ -1,5 +1,5 @@
-import {AppBar, IconButton, Menu, MenuItem, Toolbar} from '@material-ui/core';
-import {AccountCircle} from '@material-ui/icons';
+import {AccountCircle} from '@mui/icons-material';
+import {AppBar, IconButton, Menu, MenuItem, Toolbar} from '@mui/material';
 import * as React from 'react';
 import {MouseEvent, useEffect, useState} from 'react';
 import {logout} from 'sol/api/auth/security';

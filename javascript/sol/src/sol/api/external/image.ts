@@ -8,7 +8,8 @@ export async function bingImageUrl(): Promise<string> {
     API_BING_IMAGE_META,
     BING_META,
   );
-  return 'https://www.bing.com' + meta.images[0].urlbase + '_UHD.jpg';
+  const base = meta.images[0].urlbase;
+  return `https://www.bing.com${base}_UHD.jpg`;
 }
 
 const BING_META = {

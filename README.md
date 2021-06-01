@@ -16,20 +16,20 @@ dev分支用于实验性功能、开发测试的提交，很可能不稳定或�
 Please checkout to branch "ci" first.  
 请先切换到ci分支。  
 
-[Kubernetes](https://kubernetes.io/docs/tasks/tools/) and [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) are required. Please refer to official documentation.  
-部署需要依赖于[Kubernetes](https://kubernetes.io/docs/tasks/tools/)和[Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/)，请根据官方指引进行部署。  
+[Helm](https://helm.sh/docs/intro/install/), [Kubernetes](https://kubernetes.io/docs/tasks/tools/) and [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) are required. Please refer to official documentation.  
+部署需要依赖于[Helm](https://helm.sh/docs/intro/install/)、[Kubernetes](https://kubernetes.io/docs/tasks/tools/)和[Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/)，请根据官方指引进行部署。  
 
-Clone this repository, enter the root of directory, run the command below with appropriate mode. Currently "standalone" and "cluster" mode are available. Note that you need privilege to run the command.  
-克隆本仓库，进入文件夹目录，并根据你需要的启动模式运行以下命令，目前“standalone”和“cluster”模式是可用的。请注意你可能需要系统权限才能运行这些命令。  
+Clone this repository, enter the root of directory, run the command below with appropriate command line application. Note that you need privilege to run the command.  
+克隆本仓库，进入文件夹目录，并根据命令行程序不同运行以下命令。请注意你可能需要系统权限才能运行这些命令。  
 
 Shell
 ```
-kubernetes/sol/run ${MODE}
+helm/sol/run
 ```
 
 Powershell
 ```
-kubernetes\sol\run.ps1 ${Mode}
+helm\sol\run.ps1
 ```
 
 Use command below to check the exposed address of Kubernetes Ingress resource.  

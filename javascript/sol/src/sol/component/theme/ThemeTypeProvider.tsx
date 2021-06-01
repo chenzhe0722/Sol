@@ -1,5 +1,4 @@
-import CssBaseline from '@material-ui/core/CssBaseline';
-import {createMuiTheme, ThemeProvider} from '@material-ui/core/styles';
+import {createTheme, CssBaseline, ThemeProvider} from '@mui/material';
 import * as React from 'react';
 import {ThemeTypeContext} from 'sol/component/theme';
 import {useSwitch} from 'sol/util/hook';
@@ -17,5 +16,5 @@ export function ThemeTypeProvider(props: ChildrenProps): JSX.Element {
   );
 }
 
-const lightTheme = createMuiTheme();
-const darkTheme = createMuiTheme({palette: {type: 'dark'}});
+const lightTheme = createTheme();
+const darkTheme = createTheme({palette: {mode: 'dark'}});

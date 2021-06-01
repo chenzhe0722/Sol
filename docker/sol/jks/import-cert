@@ -1,0 +1,28 @@
+#!/bin/sh
+
+while [ ${#} -gt 0 ]; do
+  case "${1}" in
+    -s)
+      SRC="${2}"
+      shift 2
+    ;;
+    -d)
+      DST="${2}"
+      shift 2
+    ;;
+    *)
+      echo "Unknown argument: ${1}" >&2
+      exit 1
+    ;;
+  esac
+done
+
+openssl pkcs12 \
+  -export \
+  -in "${SRC}/tls.crt" \
+  -inkey "${SRC}/tls.key" \
+  -out "${DST}/tls.p12"
+keytool -importkeystore \
+  -srckeystore "${DST}/tls.p12" -srcstoretype PKCS12 -srcstorepass some-password \
+  -deststorepass [changeit] -destkeypass [changeit] -destkeystore server.keystore \
+  -alias [some-alias]

@@ -1,13 +1,4 @@
 import {QUESTION_MARK} from 'sol/util';
-import {getCsrfHeader} from 'sol/web/cookie';
-
-export async function getOnly(
-  root: string,
-  params: Record<string, string>,
-  handler: ResponseHandler = serverError,
-): Promise<void> {
-  await get(root, params, handler);
-}
 
 export async function getAndRetrieveJson<T>(
   root: string,
@@ -15,7 +6,7 @@ export async function getAndRetrieveJson<T>(
   handler: ResponseHandler = serverError,
 ): Promise<T> {
   const res = await get(root, params, handler);
-  return await retrieveJson<T>(res);
+  return await res.json() as Promise<T>;
 }
 
 async function get(
@@ -23,58 +14,14 @@ async function get(
   params: Record<string, string>,
   handler: ResponseHandler,
 ): Promise<Response> {
-  const res = await fetch(buildUrl(root, params), {method: 'GET'});
-  handler(res);
-  return res;
-}
-
-function buildUrl(root: string, params?: Record<string, string>): string {
   const param = new URLSearchParams(params).toString();
-  return param ? [root, param].join(QUESTION_MARK) : root;
-}
-
-export async function sendJsonOnly<T>(
-  method: JsonRequestMethod,
-  root: string,
-  params: T,
-  handler: ResponseHandler = serverError,
-): Promise<void> {
-  await sendJson(method, root, params, handler);
-}
-
-export async function sendJsonAndRetrieveJson<T, R>(
-  method: JsonRequestMethod,
-  root: string,
-  params: T,
-  handler: ResponseHandler = serverError,
-): Promise<R> {
-  const res = await sendJson(method, root, params, handler);
-  return await retrieveJson<R>(res);
-}
-
-async function sendJson<T>(
-  method: JsonRequestMethod,
-  root: string,
-  params: T,
-  handler: ResponseHandler,
-): Promise<Response> {
-  const res = await fetch(root, {
-    method: method,
-    headers: {
-      'content-type': 'application/json',
-      ...getCsrfHeader(),
-    },
-    body: JSON.stringify(params),
-  });
+  const req = param ? [root, param].join(QUESTION_MARK) : root;
+  const res = await fetch(req, {method: 'GET'});
   handler(res);
   return res;
 }
 
-function retrieveJson<T>(res: Response): Promise<T> {
-  return res.json() as Promise<T>;
-}
-
-function serverError(res: Response): void {
+export function serverError(res: Response): void {
   if (!res.ok) {
     throw Error(res.statusText);
   }
@@ -82,4 +29,4 @@ function serverError(res: Response): void {
 
 export type JsonRequestMethod = 'PUT' | 'POST' | 'DELETE';
 
-type ResponseHandler = (res: Response) => void;
+export type ResponseHandler = (res: Response) => void;

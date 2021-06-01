@@ -1,5 +1,14 @@
 package indi.xeno.sol.auth.handler;
 
+import static indi.xeno.sol.auth.domain.Status.ADMIN;
+import static indi.xeno.sol.auth.domain.Status.DELETED;
+import static indi.xeno.sol.auth.domain.Status.USER;
+import static indi.xeno.sol.auth.util.SecurityUtils.encodePassword;
+import static indi.xeno.sol.common.util.EntityUtils.NAME;
+import static indi.xeno.sol.common.util.ServerUtils.ok;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
+import static reactor.core.publisher.Mono.defer;
+
 import indi.xeno.sol.auth.domain.Status;
 import indi.xeno.sol.auth.repo.AccountRepo;
 import indi.xeno.sol.auth.view.RegisterRequest;
@@ -12,15 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-
-import static indi.xeno.sol.auth.domain.Status.ADMIN;
-import static indi.xeno.sol.auth.domain.Status.DELETED;
-import static indi.xeno.sol.auth.domain.Status.USER;
-import static indi.xeno.sol.auth.util.SecurityUtils.encodePassword;
-import static indi.xeno.sol.common.util.EntityUtils.NAME;
-import static indi.xeno.sol.common.util.ServerUtils.ok;
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
-import static reactor.core.publisher.Mono.defer;
 
 @Component
 public class SignUpHandler {

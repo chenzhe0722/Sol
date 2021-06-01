@@ -1,7 +1,17 @@
 package indi.xeno.sol.auth.security;
 
+import static indi.xeno.sol.auth.util.AccountUtils.PASSWORD;
+import static indi.xeno.sol.common.util.EntityUtils.NAME;
+import static indi.xeno.sol.common.util.JsonUtils.readJson;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import indi.xeno.sol.common.security.BaseAuthFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.io.UncheckedIOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,17 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.io.UncheckedIOException;
-
-import static indi.xeno.sol.auth.util.AccountUtils.PASSWORD;
-import static indi.xeno.sol.common.util.EntityUtils.NAME;
-import static indi.xeno.sol.common.util.JsonUtils.readJson;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers;
 
 @Component
 class AuthFilter extends BaseAuthFilter {

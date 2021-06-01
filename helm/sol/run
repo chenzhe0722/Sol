@@ -1,0 +1,33 @@
+#!/bin/sh
+
+ROOT=$(dirname "${0}")
+
+create_cert() {
+  openssl req \
+    -x509 -newkey rsa:4096 \
+    -keyout "${CERT}/tls.key" \
+    -out "${CERT}/tls.crt" \
+    -days 365
+}
+
+while [ ${#} -gt 0 ]; do
+  case "${1}" in
+    -c)
+      CERT="${2}"
+      
+      shift 2
+    ;;
+    *)
+      echo "Unknown argument: ${1}" >&2
+      exit 1
+    ;;
+  esac
+done
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+kubectl apply -f "${ROOT}/init.yaml"
+kubectl create -n sol secret tls portal --cert= --key=
+helm install -n sol -f "${ROOT}/relation.yaml" relation bitnami/postgresql
+helm install -n sol -f "${ROOT}/cache.yaml" cache bitnami/redis-cluster
+helm install -n sol auth-portal "${ROOT}/auth-portal"
+helm install -n sol portal "${ROOT}/portal"

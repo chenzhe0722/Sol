@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        {{- if .Values.podLabels }}
+        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+      - name: {{ .Release.Name }}
+        image: chenzhe0722/sol:auth-portal
+        ports:
+        - containerPort: 8443
+        {{- if .Values.resources }}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
+        {{- end }}
+        {{- if .Values.env }}
+        env: {{- toYaml .Values.env | nindent 10 }}
+        {{- end }}
+        volumeMounts:
+        - name: {{ .Release.Name }}-jks
+          mountPath: /root/cert
+      initContainers:
+      - name: {{ .Release.Name }}-cert
+        image: chenzhe0722/sol:jks
+        command:
+        - "ca"
+        - "-s"
+        - "/root/ssl"
+        - "-d"
+        - "/root/jks"
+        volumeMounts:
+        - name: {{ .Release.Name }}-ssl
+          mountPath: /root/ssl
+      {{- if .Values.init }}
+      - name: {{ .Release.Name }}-wait
+        image: chenzhe0722/sol:wait
+        command:
+        - "wait-for"
+        - "-t"
+        - {{ .Values.init.timeout | quote }}
+        {{- range .Values.init.wait }}
+        - {{ . | quote }}
+        {{- end }}
+      {{- end }}
+      volumes:
+      - name: {{ .Release.Name }}-ssl
+        secret:
+          secretName: {{ .Values.ssl.secretName }}

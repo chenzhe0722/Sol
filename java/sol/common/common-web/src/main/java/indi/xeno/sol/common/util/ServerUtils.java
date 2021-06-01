@@ -1,14 +1,14 @@
 package indi.xeno.sol.common.util;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.TEXT_PLAIN;
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.TEXT_PLAIN;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 
 public abstract class ServerUtils {
 
@@ -16,8 +16,8 @@ public abstract class ServerUtils {
 
   public static final RequestPredicate ACCEPT_JSON = accept(APPLICATION_JSON);
 
-  public static <T, P extends Publisher<T>> Mono<ServerResponse> ok(P body, Class<T> cl) {
-    return ServerResponse.ok().contentType(APPLICATION_JSON).body(body, cl);
+  public static <T, P extends Publisher<T>> Mono<ServerResponse> ok(P body, Class<T> cls) {
+    return ServerResponse.ok().contentType(APPLICATION_JSON).body(body, cls);
   }
 
   public static <T> Mono<ServerResponse> ok(T body) {

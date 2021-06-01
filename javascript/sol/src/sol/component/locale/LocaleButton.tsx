@@ -1,5 +1,5 @@
-import {IconButton, IconButtonProps, Menu, MenuItem} from '@material-ui/core';
-import {Translate} from '@material-ui/icons';
+import {Translate} from '@mui/icons-material';
+import {IconButton, IconButtonProps, Menu, MenuItem} from '@mui/material';
 import * as React from 'react';
 import {MouseEvent, useContext} from 'react';
 import {Locale, LocaleContext} from 'sol/component/locale';

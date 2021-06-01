@@ -1,5 +1,8 @@
 package indi.xeno.sol.auth.api;
 
+import static indi.xeno.sol.common.util.ServerUtils.ACCEPT_JSON;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+
 import indi.xeno.sol.auth.handler.SessionHandler;
 import indi.xeno.sol.auth.handler.SignUpHandler;
 import indi.xeno.sol.auth.handler.StatusHandler;
@@ -11,9 +14,6 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions.Builder;
 import org.springframework.web.reactive.function.server.ServerResponse;
-
-import static indi.xeno.sol.common.util.ServerUtils.ACCEPT_JSON;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
 @EnableWebFlux
@@ -31,14 +31,14 @@ public class WebConf implements WebFluxConfigurer {
   @Bean
   public RouterFunction<ServerResponse> router() {
     return route()
-        .path("/session", WebConf::sessionHandler)
+        .path("/session", WebConf::sessionRouter)
         .path("/sign-up", this::signUpRouter)
         .path("/status", this::statusRouter)
         .build();
   }
 
-  private static void sessionHandler(Builder builder) {
-    builder.GET("/current", SessionHandler::current);
+  private static void sessionRouter(Builder builder) {
+    builder.GET("/current", SessionHandler::current).GET("/csrf", SessionHandler::csrf);
   }
 
   private void signUpRouter(Builder builder) {

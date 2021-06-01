@@ -1,0 +1,9 @@
+server:
+  port: 8080
+spring:
+  r2dbc:
+    url: "r2dbc:postgresql://localhost:5432/postgres?schema=auth"
+    username: postgres
+  data:
+    redis:
+      url: "redis://localhost:6379"

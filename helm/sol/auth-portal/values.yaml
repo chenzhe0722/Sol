@@ -1,0 +1,29 @@
+replicas: 3
+podLabels:
+  frontend: app
+  backend: app
+env:
+- name: SPRING_PROFILES_ACTIVE
+  value: prod
+- name: LOG4J_CONTEXT_SELECTOR
+  value: org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+- name: SSL_KEY_STROE
+  value: /root/cert/tls.p12
+- name: 
+  value:
+- name: SSL_KEY_STORE_TYPE
+  value: PKCS12
+ssl:
+  secretName: portal
+resources:
+  requests:
+    cpu: 20m
+    memory: 256Mi
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+init:
+  timeout: 5
+  wait:
+  - relation:3306
+  - cache:6379

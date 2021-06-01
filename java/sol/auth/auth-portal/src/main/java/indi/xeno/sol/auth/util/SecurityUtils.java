@@ -1,14 +1,13 @@
 package indi.xeno.sol.auth.util;
 
-import indi.xeno.sol.auth.domain.Status;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.List;
-
 import static indi.xeno.sol.auth.domain.Status.ADMIN;
 import static indi.xeno.sol.auth.domain.Status.USER;
 import static java.util.Arrays.asList;
 import static org.springframework.security.crypto.factory.PasswordEncoderFactories.createDelegatingPasswordEncoder;
+
+import indi.xeno.sol.auth.domain.Status;
+import java.util.List;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public abstract class SecurityUtils {
 

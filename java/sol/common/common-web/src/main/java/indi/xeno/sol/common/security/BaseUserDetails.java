@@ -1,9 +1,8 @@
 package indi.xeno.sol.common.security;
 
+import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.List;
 
 public abstract class BaseUserDetails implements UserDetails {
 

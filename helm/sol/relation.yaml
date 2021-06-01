@@ -1,0 +1,41 @@
+fullnameOverride: relation
+primary:
+  persistence:
+    size: 1Gi
+  podLabels:
+    backend: app
+  resources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  initdb:
+    scripts:
+      init.sql: |
+        CREATE ROLE sol;
+        CREATE DATABASE sol WITH OWNER sol ENCODING 'UTF8';
+        CREATE SCHEMA auth;
+        CREATE TABLE auth.account (
+          id          bigserial                PRIMARY KEY,
+          name        varchar(255)             UNIQUE NOT NULL,
+          password    varchar(255)             NOT NULL,
+          status      smallint                 NOT NULL,
+          last_logged timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          version     bigint                   NOT NULL DEFAULT 0
+        );
+        CREATE USER 'auth';
+        GRANT SELECT, INSERT, UPDATE, DELETE ON auth.* TO 'auth';
+readReplicas:
+  persistence:
+    size: 1Gi
+  podLabels:
+    backend: app
+  resources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi

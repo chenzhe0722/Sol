@@ -1,18 +1,17 @@
 package indi.xeno.sol.auth.security;
 
-import indi.xeno.sol.auth.domain.Status;
-import indi.xeno.sol.auth.entity.Account;
-import indi.xeno.sol.common.security.BaseUserDetails;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import java.io.Serial;
-import java.math.BigInteger;
-import java.util.List;
-
 import static indi.xeno.sol.auth.domain.Status.ADMIN;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+
+import indi.xeno.sol.auth.domain.Status;
+import indi.xeno.sol.auth.entity.Account;
+import indi.xeno.sol.common.security.BaseUserDetails;
+import java.io.Serial;
+import java.math.BigInteger;
+import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 class AccountDetails extends BaseUserDetails {
 

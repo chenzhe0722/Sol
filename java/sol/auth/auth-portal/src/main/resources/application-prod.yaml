@@ -1,0 +1,18 @@
+server:
+  port: 8443
+  http2:
+    enabled: true
+  ssl:
+    key-store: ${SSL_KEY_STORE}
+    key-store-type: ${SSL_KEY_STORE_TYPE}
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
+spring:
+  r2dbc:
+    url: "r2dbc:postgresql://relation:5432"
+    username: auth
+    name: auth
+  data:
+    redis:
+      cluster:
+        nodes:
+          - "cache:6379"

@@ -1,5 +1,4 @@
-import {Button, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField} from '@material-ui/core';
-import {makeStyles} from '@material-ui/core/styles';
+import {Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField} from '@mui/material';
 import * as React from 'react';
 import {ReactNode, useEffect, useState} from 'react';
 import {login} from 'sol/api/auth/security';
@@ -45,10 +44,9 @@ export function LoginForm(): JSX.Element {
     [locale],
   );
 
-  const styles = useStyles();
   return (
     <>
-      <form className={styles.form}>
+      <Box sx={{margin: (theme) => theme.spacing(0, 8)}}>
         <TextField
           variant="filled" fullWidth
           margin="normal"
@@ -62,7 +60,7 @@ export function LoginForm(): JSX.Element {
           type="password"
           onChange={(event) => setPwd(event.target.value)}
         />
-        <Grid container spacing={2} className={styles.button}>
+        <Grid container spacing={2} sx={{margin: (theme) => theme.spacing(2)}}>
           <Grid item xs={6}>
             <Button
               variant="outlined" fullWidth
@@ -84,7 +82,7 @@ export function LoginForm(): JSX.Element {
             </Button>
           </Grid>
         </Grid>
-      </form>
+      </Box>
       <Dialog open={dialogOpen} onClose={switchDialogOpen}>
         <DialogTitle>
           {text.confirm}
@@ -124,14 +122,6 @@ export function LoginForm(): JSX.Element {
     </>
   );
 }
-
-const useStyles = makeStyles(
-  ({spacing}) =>
-    createStyles({
-      form: {margin: spacing(0, 8)},
-      button: {marginTop: spacing(2)},
-    }),
-);
 
 type SignUpFunc =
   (name: string, pwd: string, invalid: ReactNode, occupied: ReactNode) => void;

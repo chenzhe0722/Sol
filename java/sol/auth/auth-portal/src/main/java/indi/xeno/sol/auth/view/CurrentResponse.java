@@ -1,8 +1,8 @@
 package indi.xeno.sol.auth.view;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import static indi.xeno.sol.common.util.EntityUtils.NAME;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record CurrentResponse (
     @JsonProperty(NAME) String name,

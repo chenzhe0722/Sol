@@ -1,4 +1,4 @@
-import {Snackbar, SnackbarProps} from '@material-ui/core';
+import {Snackbar, SnackbarProps} from '@mui/material';
 import * as React from 'react';
 import {useContext, useEffect, useState} from 'react';
 import {EMPTY_MESSAGE, Message, MessageContext} from 'sol/component/message';
@@ -38,7 +38,7 @@ export function MessageSnackbar(
           switchOpen();
         }
       }
-      onExited={() => setMsg(EMPTY_MESSAGE)}
+      TransitionProps={{onExited: () => setMsg(EMPTY_MESSAGE)}}
       autoHideDuration={6000}
       {...props}
     />
@@ -50,5 +50,5 @@ type SnackbarPropsExclude =
   | 'key'
   | 'open'
   | 'onClose'
-  | 'onExited'
+  | 'TransitionProps'
   | 'autoHideDuration';
